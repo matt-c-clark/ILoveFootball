@@ -12,14 +12,14 @@ class rbNode
 {
 public:
 
+	//enum type to determine the "color" of the nodes
+	//used for red black tree
 	enum color
 	{
 		BLACK,
 		RED,
 		BLANK
 	};
-		//enum type to determine the "color" of the nodes
-		//used for red black tree
 
 	//EXCPETIONS
 	class nullNode{};	//thrown when a null node is attempted to be accessed
@@ -82,6 +82,9 @@ public:
 	C getValue();
 		//returns the object stored in the data pair
 
+	color getColor();
+		//returns the color of the node
+
 	rbNode<T, C>*  getLeftChild();
 		//return node of the leftChild of the node
 		//throws nullLeftChild if no leftChild
@@ -102,6 +105,9 @@ public:
 		//is passed a key and a value
 		//stores those values in the pair data in the node
 
+	void setColor(const color newColor);
+		//sets the color of the node to the new color
+
 	void addLeftChild(rbNode<T, C> & newLeftChild);
 		//is passed a node
 		//node is deep copied then set as the left child of current node
@@ -119,6 +125,9 @@ public:
 		//returns true if the node is a right child of its parent if it has
 		// a parent, else returns false
 
+	bool isExternal();
+		//returns true if the node had no non null descendants
+
 	string toString();
 		// returns the data stored in a node as a string
 		//format: (key, value)
@@ -130,7 +139,7 @@ private:
 								// child
 	rbNode<T, C> *rightChild;	//pointer to a node that is this nodes right
 								// child
-	color color;				//stores the color of the node in the form of
+	color nodeColor;				//stores the color of the node in the form of
 								// of the enumerated type color
 };
 
@@ -209,7 +218,7 @@ rbNode<T, C>::rbNode()
 	rightChild = NULL;
 
 	//initial color will be blank
-	color = BLANK;
+	nodeColor = BLANK;
 }
 
 //non-default constructor
@@ -231,7 +240,7 @@ rbNode<T, C>::rbNode(pair<T, C> & data)
 	rightChild = NULL;
 
 	//initial color will be blank
-	this->color = BLANK;
+	this->nodeColor = BLANK;
 }
 
 //non-default constructor
@@ -254,7 +263,7 @@ rbNode<T, C>::rbNode(const T & key, C  const & value)
 	rightChild = NULL;
 
 	//initial color will be blank
-	this->color = BLANK;
+	this->nodeColor = BLANK;
 }
 
 //copy constructor
@@ -268,7 +277,7 @@ rbNode<T, C>::rbNode(const rbNode<T, C>& other)
 	parent = NULL;
 	leftChild = NULL;
 	rightChild = NULL;
-	color = BLANK;
+	nodeColor = BLANK;
 	cout << "(COPY CONSTRUCTOR CALLED)\n";
 
 	//calls copy method
@@ -303,7 +312,7 @@ void rbNode<T, C>::copyRBNode(const rbNode<T, C> & otherNode)
 	if(rightChild != NULL){delete rightChild;}
 
 	//assign appropriate color
-	color = otherNode.color;
+	nodeColor = otherNode.nodeColor;
 
 	//copy the data if necessary
 	if(otherNode.data != NULL)
@@ -363,6 +372,14 @@ C rbNode<T, C>::getValue()
 	return data->second;	//return key in data pair
 }
 
+//returns the color of the node
+template<class T, class C>
+typename rbNode<T, C>::color rbNode<T, C>::getColor()
+{
+	//returns color of the node
+	return nodeColor;
+}
+
 //return node of the leftChild of the node
 //throws nullLeftChild if no leftChild
 template<class T, class C>
@@ -412,6 +429,14 @@ void rbNode<T, C>::setData(const T & key, const C & value)
 	//store passed key, value pair into data
 	data->first = key;
 	data->second = value;
+}
+
+//sets the color of the node to the new color
+template<class T, class C>
+void rbNode<T, C>::setColor(const color newColor)
+{
+	//sets the nodeColor lto the passed color
+	nodeColor = newColor;
 }
 
 //is passed a node
@@ -505,6 +530,24 @@ bool rbNode<T, C>::isRightChild()
 
 	//return true if not
 	return false;
+}
+
+//returns true if the node had no non null descendants
+template <class T, class C>
+bool rbNode<T, C>::isExternal()
+{
+	//temp variable that will be the return for the function
+	bool temp = false;
+
+	//checks if both children are NULL
+	//if they are its an external node
+	if(leftChild == NULL && rightChild == NULL)
+	{
+
+		//set to true
+		temp = true;
+	}
+	return temp;	//return temp variable
 }
 
 // returns the data stored in a node as a string
