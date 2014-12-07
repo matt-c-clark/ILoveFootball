@@ -1,6 +1,5 @@
+
 #include <iostream>
-#include <sstream>
-#include <string>
 using namespace std;
 
 //node class that will be used specifically in a red black tree
@@ -11,553 +10,174 @@ template <class T, class C>
 class rbNode
 {
 public:
-
-	//enum type to determine the "color" of the nodes
-	//used for red black tree
-	enum color
-	{
-		BLACK,
-		RED,
-		BLANK
-	};
-
-	//EXCPETIONS
-	class nullNode{};	//thrown when a null node is attempted to be accessed
-
-	//OVERLOADED OPERATORS
-	bool operator==(const rbNode<T, C> & otherNode);
-		//checks the key stored in the data pair and compares the two
-		// if they are equal, returns true, else false
-
-	bool operator>=(const rbNode<T, C> & otherNode);
-		//checks the key stored in the data pair and compares the two
-		//if the current nodes key is greater than the passed nodes key,
-		// returns true, else false
-
-	bool operator<=(const rbNode<T, C> & otherNode);
-		//checks the key stored in the data pair and compares the two
-		//if the current nodes key is less than the passed nodes key,
-		// returns true, else false
-
-	//CONSTRUCTORS
-	rbNode();
+	rbNode(T key, C value);
 		//default constructor
-		//Color = BLANK
-		//data, parent, leftChild, rightChild = NULL
+		//keys is set to the passed key
+		//value is set to the passed value
+		//is red set to true signifying its a red node
+		//parent, left, right is NULL
 
-	rbNode(pair<T, C>  & data);
-		//non-default constructor
-		//data will equal the passed pair
-		//parent, leftChild, rightChild = NULL
-		//performs deep copy on passed data
+	void recolor();
+		//toggles the isRed boolean
+		//if its true, turns it false
+		//if it is false, turns it true
 
-	rbNode(const T & key, const C & object);
-		//non-default constructor
-		//T object stored in first element in data
-		//C object stored in second element in data
-		//performs deep copy on passed data
-
-	rbNode(const rbNode<T, C> & otherNode);
-		//copy constructor
-		//calls overloaded assignment operator
-		//does not copy the parent the node is pointing to
-
-	~rbNode();
-		//destructor
-		//does not delete parent
-
-	//METHODS
-	void copyRBNode(const rbNode<T, C> & otherNode);
-		//is passed a  node
-		//stores the data in the node
-		//also stores the data of all its descendants
-		//if current node already has descendants, they are deleted first
-
-	pair<T, C>* getData();
-		//returns the data stored in node as a pair
+	bool isColoredRed();
+		//used to determine the color of the node
+		//returns true if the node is red
+		//returns false if the node is black
 
 	T getKey();
-		//returns the key stored in the data pair
+		//returns a copy of the key in the node
 
 	C getValue();
-		//returns the object stored in the data pair
+		//returns a copy of the value in the node
 
-	color getColor();
-		//returns the color of the node
+	rbNode<T, C>* getLeft();
+		//returns a pointer to the left child
 
-	rbNode<T, C>*  getLeftChild();
-		//return node of the leftChild of the node
-		//throws nullLeftChild if no leftChild
-
-	rbNode<T, C>*  getRightChild();
-		//return node of the rightChild of the node
-		//throws nullRightChild if no rightChild
+	rbNode<T, C>* getRight();
+		//returns a pointer to the right child
 
 	rbNode<T, C>* getParent();
-		//return node of the parent of the node
-		//throws nullParent if no parent
+		//returns a pointer to the parent node
 
-	void setData(pair<T, C> & newPair);
-		//is passed a pair in the key,value format
-		//deep copies the data into the node as the data pair
+	void clearParent();
+		//removes the pointer to the parent
+		//node will no longer have a parent
 
-	void setData(const T & key, const C & vlaue);
-		//is passed a key and a value
-		//stores those values in the pair data in the node
+	void setLeft(rbNode* left);
+		//adds the pointer as the left child of the node
 
-	void setColor(const color newColor);
-		//sets the color of the node to the new color
+	void setRight(rbNode* right);
+		//adds the pointer as the right child of the node
 
-	void addLeftChild(rbNode<T, C> & newLeftChild);
-		//is passed a node
-		//node is deep copied then set as the left child of current node
-		//if node already has a left child, it deletes the current left child
-
-	void addRightChild(rbNode<T, C> & newRightChild);
-		//is passed a node
-		//node is deep copied then set as the right child of current node
-
-	bool isLeftChild();
-		//returns true if the node is a left child of its parent if it has
-		// a parent, else returns false
-
-	bool isRightChild();
-		//returns true if the node is a right child of its parent if it has
-		// a parent, else returns false
-
-	bool isExternal();
-		//returns true if the node had no non null descendants
-
-	string toString();
-		// returns the data stored in a node as a string
-		//format: (key, value)
 private:
-	pair<T, C> *data;			//pointer to a pair that stores the data of
-								// the node: key, value pair
-	rbNode<T, C> *parent;		//pointer to a node that is this nodes parent
-	rbNode<T, C> *leftChild;	//pointer to a node that is this nodes left
-								// child
-	rbNode<T, C> *rightChild;	//pointer to a node that is this nodes right
-								// child
-	color nodeColor;				//stores the color of the node in the form of
-								// of the enumerated type color
+	bool isRed;				//boolean to determine the color of the node, true
+							// if red
+	T key;					//key of the node, used as the comparator
+	C value;				//value of the node
+	rbNode<T, C> *left;		//pointer to the left child node
+	rbNode<T, C> *right;	//pointer to the right child node
+	rbNode<T, C> *parent;	//pointer to the parent of the node
 };
 
 /*****************************************************************************
- ********************************IMPLEMENTATION*******************************
+ ************** ************** IMPLEMENTATION  **************  **************
  ****************************************************************************/
 
-//checks the key stored in the data pair and compares the two
-// if they are equal, returns true, else false
-template <class T, class C>
-bool rbNode<T, C>::operator==(const rbNode<T, C> & otherNode)
-{
-	//if either nodes data is null, throw exception
-	if(data == NULL || otherNode.data == NULL){throw nullNode();}
-
-	//checks if the two keys are equivalent, if they are, return true
-	if(data->first == otherNode.data->first)
-	{
-		return true;
-	}
-
-	//else return false
-	return false;
-}
-
-//checks the key stored in the data pair and compares the two
-//if the current nodes key is greater than the passed nodes key,
-// returns true, else false
-template <class T, class C>
-bool rbNode<T, C>::operator>=(const rbNode<T, C> & otherNode)
-{
-	//if either nodes data is null, throw exception
-	if(data == NULL || otherNode.data == NULL){throw nullNode();}
-
-	//checks if the first key is greater than or equal to,
-	//if they are, return true
-	if(data->first >= otherNode.data->first)
-	{
-		return true;
-	}
-
-	//else return false
-	return false;
-}
-
-//checks the key stored in the data pair and compares the two
-//if the current nodes key is less than the passed nodes key,
-// returns true, else false
-template <class T, class C>
-bool rbNode<T, C>::operator<=(const rbNode<T, C> & otherNode)
-{
-	//if either nodes data is null, throw exception
-	if(data == NULL || otherNode.data == NULL){throw nullNode();}
-
-	//checks if the first key is less than or equal to,
-	//if they are, return true
-	if(data->first <= otherNode.data->first)
-	{
-		return true;
-	}
-
-	//else return false
-	return false;
-}
-
 //default constructor
-//Color = BLANK
-//data, parent, leftChild, rightChild = NULL
+//keys is set to the passed key
+//value is set to the passed value
+//is red set to true signifying its a red node
+//parent, left, right is NULL
 template <class T, class C>
-rbNode<T, C>::rbNode()
+rbNode<T, C>::rbNode(T key, C value)
 {
-	//initializes all pointers to NULL
-	data = NULL;
+	//makes the node red
+	this->isRed = true;
+
+	//stores the passed key, value in the respective data fields
+	this->key = key;
+	this->value = value;
+
+	//pointers to nodes are set to NULL
+	left = NULL;
+	right = NULL;
 	parent = NULL;
-	leftChild = NULL;
-	rightChild = NULL;
-
-	//initial color will be blank
-	nodeColor = BLANK;
 }
 
-//non-default constructor
-//data will equal the passed pair
-//parent, leftChild, rightChild = NULL
-//performs deep copy on passed data
+//toggles the isRed boolean
+//if its true, turns it false
+//if it is false, turns it true
 template <class T, class C>
-rbNode<T, C>::rbNode(pair<T, C> & data)
+void rbNode<T, C>::recolor()
 {
-	//dynamically create a pair for data to point to
-	this->data = new pair<T, C>;
-
-	//store passed data into dynamic data
-	*this->data = data;
-
-	//rest of the pointers set to null
-	parent = NULL;
-	leftChild = NULL;
-	rightChild = NULL;
-
-	//initial color will be blank
-	this->nodeColor = BLANK;
-}
-
-//non-default constructor
-//T object stored in first element in data
-//C object stored in second element in data
-//performs deep copy on passed data
-template <class T, class C>
-rbNode<T, C>::rbNode(const T & key, C  const & value)
-{
-	//dynamically create a pair for data to point to
-	this->data = new pair<T, C>;
-
-	//store passed data into dynamic data
-	data->first = key;
-	data->second = value;
-
-	//rest of the pointers set to null
-	parent = NULL;
-	leftChild = NULL;
-	rightChild = NULL;
-
-	//initial color will be blank
-	this->nodeColor = BLANK;
-}
-
-//copy constructor
-//calls overloaded assignment operator
-//does not copy the parent the node is pointing to
-template<class T, class C>
-rbNode<T, C>::rbNode(const rbNode<T, C>& other)
-{
-	//initialize node to null first
-	data = NULL;
-	parent = NULL;
-	leftChild = NULL;
-	rightChild = NULL;
-	nodeColor = BLANK;
-	cout << "(COPY CONSTRUCTOR CALLED)\n";
-
-	//calls copy method
-	copyRBNode(other);
-}
-
-//destructor
-//does not delete parent
-template <class T, class C>
-rbNode<T, C>::~rbNode()
-{
-	cout << "(DESTRUCTOR CALLED)\n";
-
-	//delete all pointers except parent if not pointing to NULL
-	if(data != NULL){delete data;}
-	if(leftChild != NULL){delete leftChild;}
-	if(rightChild != NULL){delete rightChild;}
-}
-
-//is passed a  node
-//stores the data in the node
-//also stores the data of all its descendants
-//if current node already has descendants, they are deleted first
-template <class T, class C>
-void rbNode<T, C>::copyRBNode(const rbNode<T, C> & otherNode)
-{
-	cout << "(COPY RB NODE CALLED)\n";
-
-	//delete data and descendants if necessary
-	if(data != NULL){delete data;}
-	if(leftChild != NULL){delete leftChild;}
-	if(rightChild != NULL){delete rightChild;}
-
-	//assign appropriate color
-	nodeColor = otherNode.nodeColor;
-
-	//copy the data if necessary
-	if(otherNode.data != NULL)
+	//toggles the isRed boolean
+	if (this->isRed)
 	{
-		//store passed nodes data into dynamic data
-		data = new pair<T, C>;
-		*data = *otherNode.data;
+		//if true, turns it to false
+		this->isRed = false;
 	}
-
-	//copy the left child if necessary
-	if(otherNode.leftChild != NULL)
+	else
 	{
-		//stores passed nodes leftChild into current leftChild
-		leftChild = new rbNode<T, C>();
-		leftChild->copyRBNode(*otherNode.leftChild); //recursion
-
-		//set as the parent of new Node
-		leftChild->parent = this;
-	}
-
-	//copy the right child if necessary
-	if(otherNode.rightChild != NULL)
-	{
-		//stores passed nodes rightChild into current rightChild
-		rightChild = new rbNode<T, C>();
-		rightChild->copyRBNode(*otherNode.rightChild); //recursion
-
-		//set as the parent of new Node
-		rightChild->parent = this;
+		//if false, turns it true
+		this->isRed = true;
 	}
 }
 
-//returns the data stored in node as a pair
+//used to determine the color of the node
+//returns true if the node is red
+//returns false if the node is black
 template <class T, class C>
-pair<T, C>* rbNode<T, C>::getData()
+bool rbNode<T, C>::isColoredRed()
 {
-	return data;	//return data pair
+	return isRed;	//returns the boolean
 }
 
-//returns the key stored in the data pair
+//returns a copy of the key in the node
 template <class T, class C>
 T rbNode<T, C>::getKey()
 {
-	//throws returnNull if data is NULL
-	if(data == NULL){throw nullNode();}
-
-	return data->first;	//return key in data pair
+	return this->key;  //return key by value
 }
 
-//returns the object stored in the data pair
+//returns a copy of the value in the node
 template <class T, class C>
 C rbNode<T, C>::getValue()
 {
-	//throws returnNull if data is NULL
-	if(data == NULL){throw nullNode();}
-
-	return data->second;	//return key in data pair
+	return this->value; //return the value by value
 }
 
-//returns the color of the node
-template<class T, class C>
-typename rbNode<T, C>::color rbNode<T, C>::getColor()
+//returns a pointer to the left child
+template <class T, class C>
+rbNode<T, C>* rbNode<T, C>::getLeft()
 {
-	//returns color of the node
-	return nodeColor;
+	return this->left;	//returns the pointer to the left
 }
 
-//return node of the leftChild of the node
-//throws nullLeftChild if no leftChild
-template<class T, class C>
-rbNode<T, C>* rbNode<T, C>::getLeftChild()
+//returns a pointer to the right child
+template <class T, class C>
+rbNode<T, C>* rbNode<T, C>::getRight()
 {
-	return leftChild;	//return leftChild Node
+	return this->right;	//returns the pointer to the right
 }
 
-//return node of the rightChild of the node
-//throws nullRightChild if no rightChild
-template<class T, class C>
-rbNode<T, C>* rbNode<T, C>::getRightChild()
-{
-	return rightChild;	//return rightChild Node
-}
-
-//return node of the parent of the node
-//throws nullNode if no parent
+//returns a pointer to the parent node
 template <class T, class C>
 rbNode<T, C>* rbNode<T, C>::getParent()
 {
-	return parent;	//return rightChild Node
+	return this->parent;	//returns the pointer to the parent
 }
 
-//is passed a pair in the key,value format
-//deep copies the data into the node as the data pair
+//removes the pointer to the parent
+//node will no longer have a parent
 template <class T, class C>
-void rbNode<T, C>::setData(pair<T, C> & newPair)
+void rbNode<T, C>::clearParent()
 {
-	//checks to see if data is NULL
-	//if its is, dynamically create pair
-	if(data == NULL){data = new pair<T, C>;}
-
-	//store passed pair into data
-	*data = newPair;
+	this->parent = NULL;	//pointer is set to null
 }
 
-//is passed a key and a value
-//stores those values in the pair data in the node
+//adds the pointer as the left child of the node
 template <class T, class C>
-void rbNode<T, C>::setData(const T & key, const C & value)
+void rbNode<T, C>::setLeft(rbNode* left)
 {
-	//checks to see if data is NULL
-	//if its is, dynamically create pair
-	if(data == NULL){data = new pair<T, C>;}
+	//sets the left child using the passed pointer
+	this->left = left;
 
-	//store passed key, value pair into data
-	data->first = key;
-	data->second = value;
+	//checks to makes sure the child is not NULL
+	//if not, the new left child has its parent set to the current node
+	if(left != NULL) left->parent = this;
 }
 
-//sets the color of the node to the new color
-template<class T, class C>
-void rbNode<T, C>::setColor(const color newColor)
-{
-	//sets the nodeColor lto the passed color
-	nodeColor = newColor;
-}
-
-//is passed a node
-//node is deep copied then set as the left child of current node
+//adds the pointer as the right child of the node
 template <class T, class C>
-void rbNode<T, C>::addLeftChild(rbNode<T, C> & newLeftChild)
+void rbNode<T, C>::setRight(rbNode* right)
 {
-	//checks to see if node is NULL, if not, deletes it first
-	if(leftChild != NULL){delete leftChild;}
+	//sets the right child using the passed pointer
+	this->right = right;
 
-	//dynamically create new node
-	leftChild = new rbNode<T, C>();
-
-	//check to see if passed data is NULL
-	if(newLeftChild.data != NULL)
-	{
-		//dynamically create data for node
-		leftChild->data = new pair<T, C>;
-
-		//stores data in leftChild from newLeftData
-		*leftChild->data = *newLeftChild.data;
-	}
-
-	//setParent respectfully
-	leftChild->parent = this;
-}
-
-//is passed a node
-//node is deep copied then set as the right child of current node
-template <class T, class C>
-void rbNode<T, C>::addRightChild(rbNode<T, C> & newRightChild)
-{
-	//checks to see if node is NULL, if not, deletes it first
-	if(rightChild != NULL){delete rightChild;}
-
-	//dynamically create new node
-	rightChild = new rbNode<T, C>();
-
-	if(newRightChild.data != NULL)
-	{
-		//dynamically create data for node
-		rightChild->data = new pair<T, C>;
-
-		//stores data in rightChild from newRightData
-		*rightChild->data = *newRightChild.data;
-	}
-
-	//setParent respectfully
-	rightChild->parent = this;
-}
-
-//returns true if the node is a left child of its parent if it has
-// a parent, else returns false
-template <class T, class C>
-bool rbNode<T, C>::isLeftChild()
-{
-	//check if has parent and if it has a leftChild
-	//if not, return false
-	if(parent == NULL || parent->leftChild == NULL)
-	{
-		return false;
-	}
-
-	//return true if is leftChild of parent
-	if(parent->leftChild == this)
-	{
-		return true;
-	}
-
-	//return true if not
-	return false;
-}
-
-//returns true if the node is a right child of its parent if it has
-// a parent, else returns false
-template <class T, class C>
-bool rbNode<T, C>::isRightChild()
-{
-	//check if has parent and if it has a rightChild
-	//if not, return false
-	if(parent == NULL || parent->rightChild == NULL)
-	{
-		return false;
-	}
-
-	//return true if is rightChild of parent
-	if(parent->rightChild == this)
-	{
-		return true;
-	}
-
-	//return true if not
-	return false;
-}
-
-//returns true if the node had no non null descendants
-template <class T, class C>
-bool rbNode<T, C>::isExternal()
-{
-	//temp variable that will be the return for the function
-	bool temp = false;
-
-	//checks if both children are NULL
-	//if they are its an external node
-	if(leftChild == NULL && rightChild == NULL)
-	{
-
-		//set to true
-		temp = true;
-	}
-	return temp;	//return temp variable
-}
-
-// returns the data stored in a node as a string
-//format: (key, value)
-template <class T, class C>
-string rbNode<T, C>::toString()
-{
-	//store the key value pair as a string
-	stringstream a;
-	a << "(" << data->first << ", " << data->second << ")";
-
-	return a.str();	//returns string
+	//checks to makes sure the child is not NULL
+	//if not, the new right child has its parent set to the current node
+	if(right != NULL) right->parent = this;
 }
