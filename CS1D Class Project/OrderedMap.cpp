@@ -114,7 +114,7 @@ vector< pair<T, C> > orderedMap<T, C>::getOrderedVector()
 	vector< rbNode<T, C>*> nodeVector;
 
 	//pointer to node that will be used to access the nodes in nodeVector
-	rbNode<int, char> *tempNode;
+	rbNode<T, C> *tempNode;
 
 	//pair that will be used to fill the returnNode
 	pair<T, C> tempPair;
@@ -123,7 +123,7 @@ vector< pair<T, C> > orderedMap<T, C>::getOrderedVector()
 	nodeVector = tree.inOrderTraversal();
 
 	//iterate through the node vector
-	for(vector<rbNode<int, char>*>::iterator i = nodeVector.begin(); i != nodeVector.end(); i++)
+	for(typename vector< rbNode<T, C>* >::iterator i = nodeVector.begin(); i != nodeVector.end(); i++)
 	{
 		//get the node from the vector
 		tempNode = *i;
