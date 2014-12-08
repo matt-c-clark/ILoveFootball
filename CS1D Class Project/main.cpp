@@ -1,5 +1,8 @@
-#include "OrderedMap.cpp"
+
+#include <iomanip>
+#include <iostream>
 #include "Team.h"
+#include "SouvenirList.h"
 using namespace std;
 
 int main()
@@ -80,10 +83,60 @@ int main()
  #endif
 
 	stadium s("Qualcomm Stadium", "San Diego, California", 1967, 7, 20, true);
+	stadium s2("At&T Stadium", "Arlington, Texas", 2009, 4, 20, false);
 	s.addTeam("Chargers");
+	s2.addTeam("Cowboys");
 
+	team chargers("Chargers", true, s);
+	team cowboys("Cowboys", false, s2);
+	cout << chargers.getStadium().getCity() << endl;
 
-	team m("Chargers", true, s);
-	cout << m.getStadium().getCity() << endl;
+	souvenirCatalog catalog;
+	catalog.add("Team Hat", 18.99);
+	catalog.add("Team Jersey", 35.35);
+	catalog.add("Team Pennant", 12.99);
+	catalog.add("Autographed Football", 79.99);
+
+	vector< pair<string, double>* > v2 = catalog.getVectorCatalog();
+
+	for(vector< pair<string, double>* >::iterator i = v2.begin(); i != v2.end(); i++)
+	{
+		pair<string, double> *temp;
+		temp = *i;
+		cout << temp->first << " / ";
+	}
+
+	souvenir so("Team Pennant", chargers, catalog);
+	souvenir so2("Team Jersey", cowboys, catalog);
+	cout << "\n$" << so.getPrice() << endl;
+
+	catalog.find("Team Pennant")->second = 16.99;
+	cout << "\n$" << so.getPrice() << endl;
+
+	catalog.erase("Team Pennant");
+
+	catalog.add("Team Pennant", 6.99);
+	so.updatePrice();
+	cout << "\n$" << so.getPrice() << endl;
+
+	souvenirList sl;
+	sl.add(so);
+	sl.add(so2);
+	cout << "\n$" << sl.getTotalPrice() << endl;
+
+	vector<souvenir> v3 = sl.getOrderedListByName();
+
+	for(vector<souvenir>::iterator i = v3.begin(); i != v3.end(); i++)
+	{
+		cout << i->getName() << " ";
+	}
+
+	cout << endl;
+
+	v3 = sl.getOrderedListByPrice();
+	for(vector<souvenir>::iterator i = v3.begin(); i != v3.end(); i++)
+	{
+		cout << i->getName() << " ";
+	}
 	return 0;
 }
