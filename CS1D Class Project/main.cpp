@@ -1,8 +1,11 @@
-#include "RedBlackTree.cpp"
+#include "OrderedMap.cpp"
+#include "Team.h"
 using namespace std;
 
 int main()
 {
+	//red black tree testing
+#if 0
 	redBlackTree<int, char> tree;
 	tree.insertNode(2, 'C');
 	tree.insertNode(3, 'D');
@@ -37,6 +40,50 @@ int main()
 		temp = *i;
 		cout << temp->getKey() << " ";
 	}
+#endif
 
+	//ordered map testing
+#if 0
+	orderedMap<int, char> map;
+
+	map.insert(2, 'C');
+	map.insert(3, 'D');
+	map.insert(4, 'E');
+	map.insert(5, 'F');
+	map.insert(8, 'I');
+	map.insert(9, 'J');
+	map.insert(10, 'K');
+	map.insert(11, 'L');
+	map.insert(12, 'M');
+	map.insert(13, 'N');
+	map.insert(0, 'A');
+	map.insert(1, 'B');
+	map.insert(6, 'G');
+	map.insert(7, 'H');
+	map.insert(7, 'M');
+
+	vector< pair<int, char> > v;
+	v = map.getOrderedVector();
+
+
+	for(vector< pair<int, char> >::iterator i = v.begin(); i != v.end(); i++)
+	{
+		pair<int, char> temp;
+		temp = *i;
+		cout << temp.first << " ";
+	}
+
+	pair<int, char> temp;
+	temp = map.find(8);
+
+	cout << temp.second;
+ #endif
+
+	stadium s("Qualcomm Stadium", "San Diego, California", 1967, 7, 20, true);
+	s.addTeam("Chargers");
+
+
+	team m("Chargers", true, s);
+	cout << m.getStadium().getCity() << endl;
 	return 0;
 }
